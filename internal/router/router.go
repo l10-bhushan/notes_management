@@ -1,11 +1,17 @@
 package router
 
 import (
+	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/l10-bhushan/notes_management/internal/config"
+	"github.com/l10-bhushan/notes_management/internal/handler"
+	"github.com/l10-bhushan/notes_management/internal/repository"
+	"github.com/l10-bhushan/notes_management/internal/service"
 )
 
 // We start by creating 3 structs each for DbConfig, Config and Application i.e. Server.
@@ -28,11 +34,22 @@ type Application struct {
 
 // Mount function is to initialize and mount the routes
 func Mount() http.Handler {
+	db, err := config.NewDb()
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	repo := repository.NewPostGresNotesRepository(db)
+	service := service.NewService(repo)
+	handler := handler.NewNotesHandler(service)
+
 	router := chi.NewRouter()
 
 	router.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Server is healthy ✅"))
 	})
+
+	router.Post("/note/create", handler.CreateNote)
 
 	return router
 }
