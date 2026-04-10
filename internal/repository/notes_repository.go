@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"log"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -14,7 +15,7 @@ type NotesRepository interface {
 	GetAllNotes() ([]model.Notes, error)
 	GetNotesById(id string) (model.Notes, error)
 	CreateNote(data model.Notes) (model.Notes, error)
-	// DeleteNote(ctx context.Context)
+	DeleteNote(id string) error
 	// UpdateNote(ctx context.Context, data any) any
 	// FilterNote(ctx context.Context, category string) any
 }
@@ -81,4 +82,19 @@ func (repo *PostgresNotesRepository) CreateNote(data model.Notes) (model.Notes, 
 	}
 
 	return data, nil
+}
+
+func (repo *PostgresNotesRepository) DeleteNote(id string) error {
+	query := `DELETE FROM notes WHERE id=$1`
+	cmdTag, err := repo.db.Exec(context.Background(), query, id)
+
+	if err != nil {
+		return err
+	}
+
+	if cmdTag.RowsAffected() == 0 {
+		return fmt.Errorf("Note not found")
+	}
+
+	return nil
 }

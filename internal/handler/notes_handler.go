@@ -101,3 +101,27 @@ func (handler *NotesHandler) CreateNote(w http.ResponseWriter, r *http.Request) 
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(result)
 }
+
+func (handler *NotesHandler) DeleteNote(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	err := handler.service.DeleteNote(id)
+
+	if err != nil {
+		error := model.Error{
+			Status:  false,
+			Message: err.Error(),
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotFound)
+		json.NewEncoder(w).Encode(error)
+	}
+
+	success := model.Success{
+		Status:  true,
+		Message: "Note deleted successfully",
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(success)
+}

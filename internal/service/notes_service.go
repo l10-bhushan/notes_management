@@ -60,3 +60,8 @@ func (service *NotesService) CreateNote(data model.NotesCreationRequest) (model.
 
 	return createdNote, err
 }
+
+func (service *NotesService) DeleteNote(id string) error {
+	err := service.repo.DeleteNote(id)
+	return err
+}
