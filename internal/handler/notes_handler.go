@@ -2,9 +2,11 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/l10-bhushan/notes_management/internal/model"
 	"github.com/l10-bhushan/notes_management/internal/service"
 )
@@ -42,6 +44,32 @@ func (handler *NotesHandler) GetAllNotes(w http.ResponseWriter, r *http.Request)
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(result)
 
+}
+
+func (handler *NotesHandler) GetNotesById(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	fmt.Println("Id is : ", id)
+	note, err := handler.service.GetNotesById(id)
+	if err != nil {
+		err := model.Error{
+			Status:  false,
+			Message: "Error fetching note",
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotFound)
+		json.NewEncoder(w).Encode(err)
+		return
+	}
+
+	success := model.Success{
+		Status:  true,
+		Message: "Note successfully found",
+		Data:    note,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(success)
 }
 
 func (handler *NotesHandler) CreateNote(w http.ResponseWriter, r *http.Request) {

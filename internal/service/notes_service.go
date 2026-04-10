@@ -28,6 +28,16 @@ func (service *NotesService) GetAllNotes() ([]model.Notes, error) {
 	return notes, nil
 }
 
+func (service *NotesService) GetNotesById(id string) (model.Notes, error) {
+	note, err := service.repo.GetNotesById(id)
+	fmt.Println("Error from service: ", err)
+	if err != nil {
+		return model.Notes{}, err
+	}
+
+	return note, nil
+}
+
 func (service *NotesService) CreateNote(data model.NotesCreationRequest) (model.Notes, error) {
 
 	id := uuid.New().String()

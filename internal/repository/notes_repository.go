@@ -12,7 +12,7 @@ import (
 // Taken care of
 type NotesRepository interface {
 	GetAllNotes() ([]model.Notes, error)
-	// GetNotesById(ctx context.Context) any
+	GetNotesById(id string) (model.Notes, error)
 	CreateNote(data model.Notes) (model.Notes, error)
 	// DeleteNote(ctx context.Context)
 	// UpdateNote(ctx context.Context, data any) any
@@ -55,6 +55,20 @@ func (repo *PostgresNotesRepository) GetAllNotes() ([]model.Notes, error) {
 	}
 
 	return notes, nil
+}
+
+func (repo *PostgresNotesRepository) GetNotesById(id string) (model.Notes, error) {
+
+	query := `SELECT * FROM notes WHERE ID = $1`
+	row := repo.db.QueryRow(context.Background(), query, id)
+
+	var note model.Notes
+	err := row.Scan(&note.Id, &note.Title, &note.Content, &note.Archived, &note.Created_At, &note.Updated_At)
+	if err != nil {
+		return model.Notes{}, err
+	}
+
+	return note, nil
 }
 
 func (repo *PostgresNotesRepository) CreateNote(data model.Notes) (model.Notes, error) {
