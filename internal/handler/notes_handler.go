@@ -19,6 +19,31 @@ func NewNotesHandler(service *service.NotesService) *NotesHandler {
 	}
 }
 
+func (handler *NotesHandler) GetAllNotes(w http.ResponseWriter, r *http.Request) {
+	notes, err := handler.service.GetAllNotes()
+	if err != nil {
+		error := model.Error{
+			Status:  false,
+			Message: "Failed to fetch data",
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotFound)
+		json.NewEncoder(w).Encode(error)
+		return
+	}
+
+	result := model.Success{
+		Status:  true,
+		Message: "Fetched all notes",
+		Data:    notes,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(result)
+
+}
+
 func (handler *NotesHandler) CreateNote(w http.ResponseWriter, r *http.Request) {
 	var req model.NotesCreationRequest
 	err := json.NewDecoder(r.Body).Decode(&req)
@@ -31,10 +56,20 @@ func (handler *NotesHandler) CreateNote(w http.ResponseWriter, r *http.Request) 
 	note, err := handler.service.CreateNote(req)
 	if err != nil {
 		log.Fatal("Failed to create user...")
-		return
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		errMsg := model.Error{
+			Status:  false,
+			Message: err.Error(),
+		}
+		json.NewEncoder(w).Encode(errMsg)
 	}
-
+	result := model.Success{
+		Status:  true,
+		Message: "Note created successfully",
+		Data:    note,
+	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(note)
+	json.NewEncoder(w).Encode(result)
 }

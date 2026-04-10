@@ -49,6 +49,7 @@ func Mount() http.Handler {
 		w.Write([]byte("Server is healthy ✅"))
 	})
 
+	router.Get("/notes", handler.GetAllNotes)
 	router.Post("/note/create", handler.CreateNote)
 
 	return router

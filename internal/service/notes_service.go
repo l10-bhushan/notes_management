@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -16,6 +17,15 @@ func NewService(repo *repository.PostgresNotesRepository) *NotesService {
 	return &NotesService{
 		repo: repo,
 	}
+}
+
+func (service *NotesService) GetAllNotes() ([]model.Notes, error) {
+	notes, err := service.repo.GetAllNotes()
+	fmt.Println(err)
+	if err != nil {
+		return []model.Notes{}, err
+	}
+	return notes, nil
 }
 
 func (service *NotesService) CreateNote(data model.NotesCreationRequest) (model.Notes, error) {

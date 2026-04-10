@@ -11,7 +11,7 @@ import (
 // Here we created the repository interface that would have functions that need to be
 // Taken care of
 type NotesRepository interface {
-	// GetAllNotes(ctx context.Context) any
+	GetAllNotes() ([]model.Notes, error)
 	// GetNotesById(ctx context.Context) any
 	CreateNote(data model.Notes) (model.Notes, error)
 	// DeleteNote(ctx context.Context)
@@ -27,6 +27,34 @@ func NewPostGresNotesRepository(db *pgxpool.Pool) *PostgresNotesRepository {
 	return &PostgresNotesRepository{
 		db: db,
 	}
+}
+
+func (repo *PostgresNotesRepository) GetAllNotes() ([]model.Notes, error) {
+	rows, err := repo.db.Query(context.Background(), `SELECT * FROM notes`)
+	if err != nil {
+
+		log.Printf("Error while fetching data: %s", err)
+		return []model.Notes{}, err
+	}
+	defer rows.Close()
+
+	var notes []model.Notes
+
+	for rows.Next() {
+		var n model.Notes
+		err := rows.Scan(&n.Id, &n.Title, &n.Content, &n.Archived, &n.Created_At, &n.Updated_At)
+		if err != nil {
+			return nil, err
+		}
+		notes = append(notes, n)
+	}
+
+	if err = rows.Err(); err != nil {
+		log.Printf("Error iterating rows: %s", err)
+		return nil, err
+	}
+
+	return notes, nil
 }
 
 func (repo *PostgresNotesRepository) CreateNote(data model.Notes) (model.Notes, error) {
