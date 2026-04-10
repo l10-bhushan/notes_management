@@ -20,7 +20,7 @@ func NewNotesHandler(service *service.NotesService) *NotesHandler {
 }
 
 func (handler *NotesHandler) CreateNote(w http.ResponseWriter, r *http.Request) {
-	var req model.Notes
+	var req model.NotesCreationRequest
 	err := json.NewDecoder(r.Body).Decode(&req)
 
 	if err != nil {

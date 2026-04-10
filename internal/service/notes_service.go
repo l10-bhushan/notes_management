@@ -1,6 +1,9 @@
 package service
 
 import (
+	"time"
+
+	"github.com/google/uuid"
 	"github.com/l10-bhushan/notes_management/internal/model"
 	"github.com/l10-bhushan/notes_management/internal/repository"
 )
@@ -15,12 +18,25 @@ func NewService(repo *repository.PostgresNotesRepository) *NotesService {
 	}
 }
 
-func (service *NotesService) CreateNote(data model.Notes) (model.Notes, error) {
-	data, err := service.repo.CreateNote(data)
+func (service *NotesService) CreateNote(data model.NotesCreationRequest) (model.Notes, error) {
+
+	id := uuid.New().String()
+	title := data.Title
+	content := data.Content
+	note := model.Notes{
+		Id:         id,
+		Title:      title,
+		Content:    content,
+		Archived:   false,
+		Created_At: time.Now().Local().String(),
+		Updated_At: time.Now().Local().String(),
+	}
+
+	createdNote, err := service.repo.CreateNote(note)
 
 	if err != nil {
 		return model.Notes{}, err
 	}
 
-	return data, err
+	return createdNote, err
 }

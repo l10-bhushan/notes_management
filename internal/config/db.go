@@ -8,7 +8,7 @@ import (
 )
 
 func NewDb() (*pgxpool.Pool, error) {
-	dsn := fmt.Sprintf("postgres://%s:%s@localhost:5432/%s",
+	dsn := fmt.Sprintf("postgres://%s:%s@localhost:5433/%s?sslmode=disable",
 		"admin",
 		"secret",
 		"notes_management_db")

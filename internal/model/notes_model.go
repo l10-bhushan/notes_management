@@ -1,5 +1,10 @@
 package model
 
+type NotesCreationRequest struct {
+	Title   string `json:"title"`
+	Content string `json:"content"`
+}
+
 type Notes struct {
 	Id         string `json:"id"`
 	Title      string `json:"title"`
