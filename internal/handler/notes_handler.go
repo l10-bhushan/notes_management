@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/l10-bhushan/notes_management/internal/model"
@@ -91,6 +92,7 @@ func (handler *NotesHandler) CreateNote(w http.ResponseWriter, r *http.Request) 
 			Message: err.Error(),
 		}
 		json.NewEncoder(w).Encode(errMsg)
+		return
 	}
 	result := model.Success{
 		Status:  true,
@@ -114,6 +116,7 @@ func (handler *NotesHandler) DeleteNote(w http.ResponseWriter, r *http.Request) 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusNotFound)
 		json.NewEncoder(w).Encode(error)
+		return
 	}
 
 	success := model.Success{
@@ -124,4 +127,45 @@ func (handler *NotesHandler) DeleteNote(w http.ResponseWriter, r *http.Request) 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(success)
+}
+
+func (handler *NotesHandler) UpdateNote(w http.ResponseWriter, r *http.Request) {
+	var note model.Notes
+	err := json.NewDecoder(r.Body).Decode(&note)
+	if err != nil {
+		error := model.Error{
+			Status:  false,
+			Message: err.Error(),
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotFound)
+		json.NewEncoder(w).Encode(error)
+		return
+	}
+	err = handler.service.UpdateNote(note.Id, note.Title, note.Content)
+	if err != nil {
+		error := model.Error{
+			Status:  false,
+			Message: err.Error(),
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotFound)
+		json.NewEncoder(w).Encode(error)
+		return
+	}
+
+	success := model.Success{
+		Status:  true,
+		Message: "Note updated successfully",
+		Data: model.Notes{
+			Id:         note.Id,
+			Title:      note.Content,
+			Updated_At: time.Now().Local().String(),
+		},
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(success)
+
 }

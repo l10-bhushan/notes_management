@@ -30,7 +30,6 @@ func (service *NotesService) GetAllNotes() ([]model.Notes, error) {
 
 func (service *NotesService) GetNotesById(id string) (model.Notes, error) {
 	note, err := service.repo.GetNotesById(id)
-	fmt.Println("Error from service: ", err)
 	if err != nil {
 		return model.Notes{}, err
 	}
@@ -64,4 +63,16 @@ func (service *NotesService) CreateNote(data model.NotesCreationRequest) (model.
 func (service *NotesService) DeleteNote(id string) error {
 	err := service.repo.DeleteNote(id)
 	return err
+}
+
+func (service *NotesService) UpdateNote(id string, title string, content string) error {
+
+	err := service.repo.UpdateNote(id, title, content)
+
+	if err != nil {
+		fmt.Println("Error while updating in db : ", err)
+		return err
+	}
+
+	return nil
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/l10-bhushan/notes_management/internal/model"
@@ -16,8 +17,7 @@ type NotesRepository interface {
 	GetNotesById(id string) (model.Notes, error)
 	CreateNote(data model.Notes) (model.Notes, error)
 	DeleteNote(id string) error
-	// UpdateNote(ctx context.Context, data any) any
-	// FilterNote(ctx context.Context, category string) any
+	UpdateNote(data model.Notes) error
 }
 
 type PostgresNotesRepository struct {
@@ -94,6 +94,17 @@ func (repo *PostgresNotesRepository) DeleteNote(id string) error {
 
 	if cmdTag.RowsAffected() == 0 {
 		return fmt.Errorf("Note not found")
+	}
+
+	return nil
+}
+
+func (repo *PostgresNotesRepository) UpdateNote(id string, title string, content string) error {
+	query := `UPDATE notes SET title=$1, content=$2, updated_at=$3 WHERE id=$4`
+	_, err := repo.db.Exec(context.Background(), query, title, content, time.Now().Local().String(), id)
+
+	if err != nil {
+		return err
 	}
 
 	return nil

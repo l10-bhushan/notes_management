@@ -52,6 +52,8 @@ func Mount() http.Handler {
 	router.Get("/notes", handler.GetAllNotes)
 	router.Get("/notes/{id}", handler.GetNotesById)
 	router.Post("/note/create", handler.CreateNote)
+	router.Delete("/note/{id}", handler.DeleteNote)
+	router.Patch("/note/{id}", handler.UpdateNote)
 
 	return router
 }
