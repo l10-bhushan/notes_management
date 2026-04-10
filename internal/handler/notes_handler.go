@@ -130,6 +130,7 @@ func (handler *NotesHandler) DeleteNote(w http.ResponseWriter, r *http.Request) 
 }
 
 func (handler *NotesHandler) UpdateNote(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
 	var note model.Notes
 	err := json.NewDecoder(r.Body).Decode(&note)
 	if err != nil {
@@ -142,7 +143,7 @@ func (handler *NotesHandler) UpdateNote(w http.ResponseWriter, r *http.Request) 
 		json.NewEncoder(w).Encode(error)
 		return
 	}
-	err = handler.service.UpdateNote(note.Id, note.Title, note.Content)
+	err = handler.service.UpdateNote(id, note.Title, note.Content)
 	if err != nil {
 		error := model.Error{
 			Status:  false,

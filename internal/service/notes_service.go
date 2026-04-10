@@ -66,8 +66,8 @@ func (service *NotesService) DeleteNote(id string) error {
 }
 
 func (service *NotesService) UpdateNote(id string, title string, content string) error {
-
 	err := service.repo.UpdateNote(id, title, content)
+	fmt.Println("Update service : ", err)
 
 	if err != nil {
 		fmt.Println("Error while updating in db : ", err)
